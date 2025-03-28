@@ -19,7 +19,7 @@ type = {'HEFX2','Hist. Eq. (sbin=2)','(a)';
     'LXFX8','TMO 2021 (sbin=8)','(c)';
     'LXFI8','TMO 2025 (sbin=8)','(d)'};
 makeVideo(type,file,font,fnum)
-makeImage(type,file,time,[8 4])
+makeImage(type,file,time,[8 8])
 makeGraph(type([1 3 4],:),file,fnum,[6 4])
 
 function makeVideo(type,file,font,fnum)
@@ -38,7 +38,8 @@ while all(hasFrames(vread))
     fnum = fnum-1;
     frame = readFrames(vread);
     for k = 1:num
-        frame{k} = insertText(frame{k},[1 1],type{k,2},...
+        text = sprintf('%s %s',type{k,3},type{k,2});
+        frame{k} = insertText(frame{k},[1 1],text,...
             'Font','Arial','FontSize',font);
     end
     frame = reshape(frame,n,m)';
@@ -57,18 +58,21 @@ function makeImage(type,file,time,dims)
 m = size(type,1);
 n = numel(time);
 frame = getFrame(type,file,time);
-[rows,cols] = size(frame);
+zoom = imread(strcat(file,'.png'));
+[nr,nc,~] = size(zoom);
+frame = imresize(frame,[NaN nc]);
+frame = repmat(frame,1,1,3);
+[rows,cols,~] = size(frame);
 xstep = cols/n;
 ystep = rows/m;
 x = round(xstep/2:xstep:cols);
 y = round(ystep/2:ystep:rows);
-imshow(frame)
+imshow([zoom; frame])
 xticks(x)
 xticklabels(time)
 xlabel('Time (s)')
-yticks(y)
+yticks(nr+y)
 yticklabels(type(:,3))
-ylabel('Method')
 axis on
 fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
     'LineWidth',0.5,'MarkerSize',4)
@@ -78,6 +82,9 @@ end
 function makeGraph(type,file,fnum,dims)
 [pmax,pmf,map,sbin] = getVars(type(:,1),file);
 pmf = tmorepmat(pmf,sbin(3),2);
+hist = {sprintf('Scene Hist. (sbin=%d)',sbin(3));
+    sprintf('Percv. Hist. (sbin=%d)',sbin(3));
+    sprintf('Contr. Limit (sbin=%d)',sbin(3))};
 p = size(pmf,1);
 nz = any(pmf(:,:,2) > 0);
 a = find(nz,1,'first');
@@ -91,6 +98,9 @@ file = strcat(file,'Var');
 video = VideoWriter(file);
 open(video)
 for k = 1:p
+    map1 = tmorepmat(map{1}(k,:),sbin(1),2);
+    map2 = tmorepmat(map{2}(k,:),sbin(2),2);
+    map3 = tmointerp(map{3}(k,:),sbin(3));
     yyaxis left
     h = plot(bins,pmf(k,a:b,1),':',...
         bins,pmf(k,a:b,2),'-',...
@@ -98,12 +108,9 @@ for k = 1:p
     rgb = get(gca,'ColorOrder');
     set(h,'LineWidth',1,'Color',rgb)
     axis([ends 0 lmax])
-    xlabel('Video In')
+    xlabel('Video Input')
     ylabel('Hist. Bin Value')
     yyaxis right
-    map1 = tmorepmat(map{1}(k,:),sbin(1),2);
-    map2 = tmorepmat(map{2}(k,:),sbin(2),2);
-    map3 = tmointerp(map{3}(k,:),sbin(3));
     h = plot(bins,map1(a:b),':',...
         bins,map2(a:b),'-.',...
         bins,map3(a:b),'-');
@@ -111,8 +118,7 @@ for k = 1:p
     set(h,'LineWidth',1,'Color',rgb)
     ylim([0 rmax])
     ylabel('Tone Function')
-    legend('Scene Histogram','Percv. Histogram',...
-        'Histogram Ceiling',type{:,2},'Location','West')
+    legend(hist{:},type{:,2},'Location','West')
     frame = getframe(gcf);
     writeVideo(video,frame)
     dotdot(true)
@@ -148,7 +154,6 @@ for i = 1:m
     end
 end
 frame = cell2mat(frame);
-frame = addBorder(frame);
 dotdot(false)
 end
 
