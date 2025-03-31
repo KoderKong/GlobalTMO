@@ -21,13 +21,13 @@ ttout.Data = ttout.Data(:);
 wwout.Data = wwout.Data(:);
 wout.Data = wout.Data(:);
 simout(logDPS,Xjk,sbin,hin,hout,ttout,yin,wwout,wout)
-% pdfout('topScope',[8 8],cin,yin,wout)
+pdfout('topScope',[7.5 7.5],cin,yin,wout)
 hin.Name = 'hin';
 hout.Name = 'hout';
 ttout.Name = 'ttout';
 wwout.Name = 'wwout';
 wout.Name = 'wout';
-xlsxout('TMOsim_LXFI',cin,yin,hin,hout,ttout,wwout,wout);
+% xlsxout('TMOsim_LXFI',cin,yin,hin,hout,ttout,wwout,wout);
 
 function Xjk = readbin(file,pages)
 file = strcat(file,'.bin');
@@ -152,10 +152,10 @@ ylabel('yin')
 subplot(4,1,4)
 plot(wout.Time,wout.Data,'b-')
 ylabel('wout')
-xlabel('Sample time (s)')
-% fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
-%     'LineWidth',0.5,'MarkerSize',4)
-% close
+xlabel('Sample Time (s)')
+fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
+    'LineWidth',0.5,'MarkerSize',4)
+close
 end
 
 function xlsxout(file,varargin)
