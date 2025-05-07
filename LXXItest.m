@@ -15,11 +15,11 @@ Amin = round(pow2(256,bitc)/cmax);
 Amax = round(pow2(256,bitc)/hmax);
 bitA = ceil(log2(Amax));
 sim LXXIsys % Li's method, w/o div, w/o LPF, with interp
-hout.Data = hout.Data(:);
-assert(iscolumn(TTout.Data))
+hin.Data = hin.Data(:);
+ttout.Data = ttout.Data(:);
 wwout.Data = wwout.Data(:);
 wout.Data = wout.Data(:);
-simout(logDPS,Xjk,sbin,hout,TTout,yin,wwout,wout)
+simout(logDPS,Xjk,sbin,hin,ttout,yin,wwout,wout)
 
 function Xjk = readbin(file,pages)
 file = strcat(file,'.bin');
@@ -59,7 +59,7 @@ Cjk = fi(Cjk,0,19-sbin,0);
 cin = timeseries(Cjk(:),Tjk,'Name','cin');
 end
 
-function simout(CISobj,Xjk,sbin,hout,TTout,yin,wwout,wout)
+function simout(CISobj,Xjk,sbin,hin,ttout,yin,wwout,wout)
 dotdot('SIMOUT',10)
 [M,N,P] = size(Xjk);
 TMOobj = TMO2021(16-sbin,'invert-interp',8,...
@@ -72,10 +72,10 @@ for k = 1:P
     Yj = image(CISobj,Xj);
     Wj = process(TMOobj,Yj,sbin);
     if k < P
-        sceneHist(TMOobj.pmf,k-1,MN,sbin,hout)
+        sceneHist(TMOobj.pmf,k-1,MN,sbin,hin)
     end
     if k > 2
-        toneFunc(TMOobj.map,k-1,MN,sbin,TTout)
+        toneFunc(TMOobj.map,k-1,MN,sbin,ttout)
     end
     if k > 2 && k < P-1
         globalMap(TMOobj.map,k-1,MN,sbin,yin,wwout)
@@ -87,18 +87,18 @@ end
 dotdot(false)
 end
 
-function sceneHist(pmf_,fn,cmax,sbin,hout)
+function sceneHist(pmf_,fn,cmax,sbin,hin)
 n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-pmf = hout.Data(n+3:n+nbin+2);
+pmf = hin.Data(n+3:n+nbin+2);
 pmf = flip(pmf(:)); % Reverse readout
 assert(isequal(pmf_,pmf))
 end
 
-function toneFunc(map_,fn,cmax,sbin,TTout)
+function toneFunc(map_,fn,cmax,sbin,ttout)
 n = fn*cmax;
 nbin = pow2(16-sbin);
-data = flip(TTout.Data(n+8:n+nbin+7)); % 'invert'
+data = flip(ttout.Data(n+8:n+nbin+7)); % 'invert'
 map = {uint8(bitand(data,0x00FF));
     uint8(bitshift(bitand(data,0xFF00),-8))};
 assert(isequal(map_,map{1}))

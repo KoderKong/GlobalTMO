@@ -12,11 +12,11 @@ hmax = ceil((rows*cols/sqrt(12))/pow2(logDPS.stde,8-sbin));
 cmax = rows*cols;
 bitc = ceil(log2(cmax));
 sim LDXIsys % Li's method, with div, w/o LPF, with interp
-hout.Data = hout.Data(:);
-assert(iscolumn(TTout.Data))
+hin.Data = hin.Data(:);
+ttout.Data = ttout.Data(:);
 wwout.Data = wwout.Data(:);
 wout.Data = wout.Data(:);
-simout(logDPS,Xjk,sbin,hout,TTout,yin,wwout,wout)
+simout(logDPS,Xjk,sbin,hin,ttout,yin,wwout,wout)
 
 function Xjk = readbin(file,pages)
 file = strcat(file,'.bin');
@@ -56,7 +56,7 @@ Cjk = fi(Cjk,0,19-sbin,0);
 cin = timeseries(Cjk(:),Tjk,'Name','cin');
 end
 
-function simout(CISobj,Xjk,sbin,hout,TTout,yin,wwout,wout)
+function simout(CISobj,Xjk,sbin,hin,ttout,yin,wwout,wout)
 dotdot('SIMOUT',10)
 [M,N,P] = size(Xjk);
 TMOobj = TMO2025(16-sbin,'invert-interp',8,...
@@ -69,10 +69,10 @@ for k = 1:P
     Yj = image(CISobj,Xj);
     Wj = process(TMOobj,Yj,sbin);
     if k < P
-        sceneHist(TMOobj.pmf,k-1,MN,sbin,hout)
+        sceneHist(TMOobj.pmf,k-1,MN,sbin,hin)
     end
     if k > 1 && k < P
-        toneFunc(TMOobj.map,k-1,MN,sbin,TTout)
+        toneFunc(TMOobj.map,k-1,MN,sbin,ttout)
     end
     if k > 1 && k < P-2
         globalMap(TMOobj.map,k-1,MN,sbin,yin,wwout)
@@ -84,18 +84,18 @@ end
 dotdot(false)
 end
 
-function sceneHist(pmf_,fn,cmax,sbin,hout)
+function sceneHist(pmf_,fn,cmax,sbin,hin)
 n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-pmf = hout.Data(n+3:n+nbin+2);
+pmf = hin.Data(n+3:n+nbin+2);
 pmf = flip(pmf(:)); % Reverse readout
 assert(isequal(pmf_,pmf))
 end
 
-function toneFunc(map_,fn,cmax,sbin,TTout)
+function toneFunc(map_,fn,cmax,sbin,ttout)
 n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-data = flip(TTout.Data(n+7:n+nbin+6)); % 'invert'
+data = flip(ttout.Data(n+7:n+nbin+6)); % 'invert'
 map = {uint8(bitand(data,0x00FF));
     uint8(bitshift(bitand(data,0xFF00),-8))};
 assert(isequal(map_,map{1}))
@@ -109,15 +109,6 @@ Wj_ = map_(double(bitshift(Yj,-sbin))+1);
 WWj = reshape(wwout.Data(n+7:n+cmax+6),240,160)';
 LSBs = @(Data) uint8(bitand(Data,0x00FF));
 assert(isequal(Wj_,LSBs(WWj)))
-end
-
-function [Wj_,map] = interpLin_(Yj_,fn,cmax,sbin,TTout)
-n = (fn-1)*cmax;
-nbin = pow2(16-sbin);
-data = flip(TTout.Data(n+7:n+nbin+6)); % 'invert'
-map = uint8(bitand(data,0x00FF));
-map_ = tmointerp(map,sbin);
-Wj_ = map_(double(Yj_)+1);
 end
 
 function interpLin(Wj_,fn,cmax,wout)
