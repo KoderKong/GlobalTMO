@@ -95,7 +95,7 @@ end
 function toneFunc(map_,fn,cmax,sbin,ttout)
 n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-data = flip(ttout.Data(n+7:n+nbin+6)); % 'invert'
+data = flip(ttout.Data(n+8:n+nbin+7)); % 'invert'
 map = {uint8(bitand(data,0x00FF));
     uint8(bitshift(bitand(data,0xFF00),-8))};
 assert(isequal(map_,map{1}))
@@ -106,13 +106,13 @@ function globalMap(map_,fn,cmax,sbin,yin,wwout)
 n = (fn+2)*cmax;
 Yj = reshape(yin.Data(n+1:n+cmax),240,160)';
 Wj_ = map_(double(bitshift(Yj,-sbin))+1);
-WWj = reshape(wwout.Data(n+7:n+cmax+6),240,160)';
+WWj = reshape(wwout.Data(n+8:n+cmax+7),240,160)';
 LSBs = @(Data) uint8(bitand(Data,0x00FF));
 assert(isequal(Wj_,LSBs(WWj)))
 end
 
 function interpLin(Wj_,fn,cmax,wout)
 n = fn*cmax;
-Wj = reshape(wout.Data(n+10:n+cmax+9),240,160)';
+Wj = reshape(wout.Data(n+11:n+cmax+10),240,160)';
 assert(isequal(Wj_,Wj))
 end
