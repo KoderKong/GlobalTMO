@@ -18,13 +18,11 @@ if nargin < 4 || isempty(div)
     div = cdf(pos); % cmax
     wtmp = ceil(pow2(cdf,bitw)/div);
 elseif isstruct(div)
-    wtmp = ceil(pow2(div.A*cdf,-div.bitc));
-    div.wmax = wtmp(pos);
-    if isscalar(div.enbl) && div.enbl > 0
-        div.enbl = div.enbl-1;
-    elseif isfield(div,'lut')
+    if isfield(div,'lut')
         div = update(div,bitw);
     end
+    wtmp = ceil(pow2(div.A*cdf,-div.bitc));
+    div.wmax = wtmp(pos);
 else
     wtmp = ceil(pow2(cdf,bitw)/div);
     div = cdf(pos); % cmax

@@ -9,7 +9,6 @@ classdef TMO2025 < handle
         div % Variables to implement division
         pmf % Probability mass functions (PMFs)
         map % Look-up table for tone mapping
-        map_ % Look-up table for tone mapping
     end
     methods
         function TMO = TMO2025(bity,type,bitw,elpf,dims,stde,mode)
@@ -31,20 +30,13 @@ classdef TMO2025 < handle
             bins = pow2(bity);
             pmfs = 1+isscalar(TMO.elpf);
             TMO.pmf = zeros(bins,pmfs);
+            TMO.map = zeros(bins,1,'uint8');
         end
         function Wj = process(TMO,Yj,sbin)
             Yj_ = bitshift(Yj,-sbin); % MSBs
             [~,hist] = tmopmf(Yj_,TMO.bity);
-            if isvector(TMO.map_)
-                lookup = TMO.map_;
-                update(TMO,hist)
-            elseif isvector(TMO.map)
-                lookup = TMO.map;
-                update(TMO,hist)
-            else
-                update(TMO,hist)
-                lookup = TMO.map;
-            end
+            lookup = TMO.map;
+            update(TMO,hist)
             if endsWith(TMO.type,'-interp')
                 lookup = tmointerp(lookup,sbin);
                 Wj = lookup(double(Yj)+1);
@@ -68,7 +60,7 @@ classdef TMO2025 < handle
             wref2 = pow2(wref,bitc);
             Amin = round(wref2/cmax);
             Amax = round(wref2/TMO.pmax);
-            TMO.div = struct('enbl',TMO.elpf,'lut',lut,'bitc',bitc,...
+            TMO.div = struct('lut',lut,'bitc',bitc,...
                 'wmax',wref/2,'A',Amin,'Amin',Amin,'Amax',Amax);
         end
         function update(TMO,hist)
@@ -86,7 +78,6 @@ classdef TMO2025 < handle
                 bin = hist > TMO.pmax;
                 hist(bin) = TMO.pmax; % Modified
             end
-            TMO.map_ = TMO.map;
             [TMO.map,TMO.div] = tmoheq(hist,...
                 TMO.type,TMO.bitw,TMO.div);
         end

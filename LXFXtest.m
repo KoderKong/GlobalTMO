@@ -20,7 +20,7 @@ hout.Data = hout.Data(:);
 tout.Data = tout.Data(:);
 wout.Data = wout.Data(:);
 simout(logDPS,Xjk,sbin,hin,hout,tout,yin,wout)
-pdfout('topScope',[7.5 7.5],cin,yin,wout)
+% pdfout('topScope',[7.5 7.5],cin,yin,wout)
 hin.Name = 'hin';
 hout.Name = 'hout';
 tout.Name = 'tout';

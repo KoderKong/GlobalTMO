@@ -21,7 +21,7 @@ ttout.Data = ttout.Data(:);
 wwout.Data = wwout.Data(:);
 wout.Data = wout.Data(:);
 simout(logDPS,Xjk,sbin,hin,hout,ttout,yin,wwout,wout)
-pdfout('topScope',[7.5 7.5],cin,yin,wout)
+% pdfout('topScope',[7.5 7.5],cin,yin,wout)
 hin.Name = 'hin';
 hout.Name = 'hout';
 ttout.Name = 'ttout';
@@ -82,12 +82,10 @@ for k = 1:P
     if k < P
         sceneHist(TMOobj.pmf(:,1),k-1,MN,sbin,hin)
         percvHist(TMOobj.pmf(:,2),k-1,MN,sbin,hout)
+        toneFunc(TMOobj.map,k-1,MN,sbin,ttout)
     end
-    if k > 2
-        % toneFunc(TMOobj.map,k-1,MN,sbin,ttout)
-    end
-    if k > 2 && k < P-1
-        % globalMap(TMOobj.map,k-1,MN,sbin,yin,wwout)
+    if k < P-2
+        globalMap(TMOobj.map,k-1,MN,sbin,yin,wwout)
     end
     if k > 3 && k < P
         % interpLin(Wj,k-1,MN,wout)
@@ -113,9 +111,9 @@ assert(isequal(pmf_,pmf))
 end
 
 function toneFunc(map_,fn,cmax,sbin,ttout)
-n = fn*cmax;
+n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-data = flip(ttout.Data(n+9:n+nbin+8)); % 'invert'
+data = flip(ttout.Data(n+12:n+nbin+11)); % 'invert'
 map = {uint8(bitand(data,0x00FF));
     uint8(bitshift(bitand(data,0xFF00),-8))};
 assert(isequal(map_,map{1}))
@@ -123,10 +121,10 @@ assert(isequal(map_([2:end end]),map{2}))
 end
 
 function globalMap(map_,fn,cmax,sbin,yin,wwout)
-n = (fn+1)*cmax;
+n = (fn+2)*cmax;
 Yj = reshape(yin.Data(n+1:n+cmax),240,160)';
 Wj_ = map_(double(bitshift(Yj,-sbin))+1);
-WWj = reshape(wwout.Data(n+9:n+cmax+8),240,160)';
+WWj = reshape(wwout.Data(n+12:n+cmax+11),240,160)';
 LSBs = @(Data) uint8(bitand(Data,0x00FF));
 assert(isequal(Wj_,LSBs(WWj)))
 end
