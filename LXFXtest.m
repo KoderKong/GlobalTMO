@@ -20,11 +20,11 @@ hout.Data = hout.Data(:);
 tout.Data = tout.Data(:);
 wout.Data = wout.Data(:);
 simout(logDPS,Xjk,sbin,hin,hout,tout,yin,wout)
-% pdfout('topScope',[7.5 7.5],cin,yin,wout)
-hin.Name = 'hin';
-hout.Name = 'hout';
-tout.Name = 'tout';
-wout.Name = 'wout';
+pdfout('topScope',[7.5 7.5],cin,yin,wout)
+% hin.Name = 'hin';
+% hout.Name = 'hout';
+% tout.Name = 'tout';
+% wout.Name = 'wout';
 % xlsxout('TMOsim_LXFX',cin,yin,hin,hout,tout,wout);
 
 function Xjk = readbin(file,pages)
@@ -80,10 +80,12 @@ for k = 1:P
     if k < P
         sceneHist(TMOobj.pmf(:,1),k-1,MN,sbin,hin)
         percvHist(TMOobj.pmf(:,2),k-1,MN,sbin,hout)
-        toneFunc(TMOobj.map,k-1,MN,sbin,tout)
+    end
+    if k < P
+        toneFunc(TMOobj.map(:,1),k-1,MN,sbin,tout)
     end
     if k < P-2
-        globalMap(TMOobj.map,k-1,MN,sbin,yin,wout)
+        globalMap(TMOobj.map(:,1),k-1,MN,sbin,yin,wout)
     end
 end
 dotdot(false)

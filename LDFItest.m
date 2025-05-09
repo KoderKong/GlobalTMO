@@ -68,19 +68,19 @@ for k = 1:P
     dotdot(true)
     Xj = Xjk(:,:,k);
     Yj = image(CISobj,Xj);
-    Wj = process(TMOobj,Yj,sbin); %#ok<NASGU>
+    Wj = process(TMOobj,Yj,sbin);
     if k < P
         sceneHist(TMOobj.pmf(:,1),k-1,MN,sbin,hin)
         percvHist(TMOobj.pmf(:,2),k-1,MN,sbin,hout)
     end
     if k > 1 && k < P
-        toneFunc(TMOobj.map,k-1,MN,sbin,ttout)
+        toneFunc(TMOobj.map(:,1),k-1,MN,sbin,ttout)
     end
     if k > 1 && k < P-2
-        globalMap(TMOobj.map,k-1,MN,sbin,yin,wwout)
+        globalMap(TMOobj.map(:,1),k-1,MN,sbin,yin,wwout)
     end
     if k > 3 && k < P
-        % interpLin(Wj,k-1,MN,wout)
+        interpLin(Wj,k-1,MN,wout)
     end
 end
 dotdot(false)

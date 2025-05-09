@@ -21,12 +21,12 @@ ttout.Data = ttout.Data(:);
 wwout.Data = wwout.Data(:);
 wout.Data = wout.Data(:);
 simout(logDPS,Xjk,sbin,hin,hout,ttout,yin,wwout,wout)
-% pdfout('topScope',[7.5 7.5],cin,yin,wout)
-hin.Name = 'hin';
-hout.Name = 'hout';
-ttout.Name = 'ttout';
-wwout.Name = 'wwout';
-wout.Name = 'wout';
+pdfout('topScope',[7.5 7.5],cin,yin,wout)
+% hin.Name = 'hin';
+% hout.Name = 'hout';
+% ttout.Name = 'ttout';
+% wwout.Name = 'wwout';
+% wout.Name = 'wout';
 % xlsxout('TMOsim_LXFI',cin,yin,hin,hout,ttout,wwout,wout);
 
 function Xjk = readbin(file,pages)
@@ -78,17 +78,19 @@ for k = 1:P
     dotdot(true)
     Xj = Xjk(:,:,k);
     Yj = image(CISobj,Xj);
-    Wj = process(TMOobj,Yj,sbin); %#ok<NASGU>
+    Wj = process(TMOobj,Yj,sbin);
     if k < P
         sceneHist(TMOobj.pmf(:,1),k-1,MN,sbin,hin)
         percvHist(TMOobj.pmf(:,2),k-1,MN,sbin,hout)
-        toneFunc(TMOobj.map,k-1,MN,sbin,ttout)
+    end
+    if k < P
+        toneFunc(TMOobj.map(:,1),k-1,MN,sbin,ttout)
     end
     if k < P-2
-        globalMap(TMOobj.map,k-1,MN,sbin,yin,wwout)
+        globalMap(TMOobj.map(:,1),k-1,MN,sbin,yin,wwout)
     end
-    if k > 3 && k < P
-        % interpLin(Wj,k-1,MN,wout)
+    if k < P
+        interpLin(Wj,k-1,MN,wout)
     end
 end
 dotdot(false)

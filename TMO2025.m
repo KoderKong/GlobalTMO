@@ -28,14 +28,17 @@ classdef TMO2025 < handle
                 end
             end
             bins = pow2(bity);
-            pmfs = 1+isscalar(TMO.elpf);
-            TMO.pmf = zeros(bins,pmfs);
-            TMO.map = zeros(bins,1,'uint8');
+            if isscalar(TMO.elpf)
+                TMO.pmf = zeros(bins,2);
+            else
+                TMO.pmf = zeros(bins,1);
+            end
+            TMO.map = zeros(bins,2,'uint8');
         end
         function Wj = process(TMO,Yj,sbin)
             Yj_ = bitshift(Yj,-sbin); % MSBs
             [~,hist] = tmopmf(Yj_,TMO.bity);
-            lookup = TMO.map;
+            lookup = TMO.map(:,2);
             update(TMO,hist)
             if endsWith(TMO.type,'-interp')
                 lookup = tmointerp(lookup,sbin);
@@ -78,7 +81,8 @@ classdef TMO2025 < handle
                 bin = hist > TMO.pmax;
                 hist(bin) = TMO.pmax; % Modified
             end
-            [TMO.map,TMO.div] = tmoheq(hist,...
+            TMO.map(:,2) = TMO.map(:,1);
+            [TMO.map(:,1),TMO.div] = tmoheq(hist,...
                 TMO.type,TMO.bitw,TMO.div);
         end
     end

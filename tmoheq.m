@@ -18,7 +18,7 @@ if nargin < 4 || isempty(div)
     div = cdf(pos); % cmax
     wtmp = ceil(pow2(cdf,bitw)/div);
 elseif isstruct(div)
-    if isfield(div,'lut')
+    if isvector(div.lut)
         div = update(div,bitw);
     end
     wtmp = ceil(pow2(div.A*cdf,-div.bitc));
@@ -36,11 +36,7 @@ if div.wmax >= 2*wref
 elseif div.wmax <= wref/2
     ratio = pow2(bitw+1);
 else
-    if isempty(div.lut)
-        ratio = round(pow2(wref/div.wmax,bitw));
-    else
-        ratio = div.lut(div.wmax-wref/2);
-    end
+    ratio = div.lut(div.wmax-wref/2);
 end
 div.A = round(pow2(ratio*div.A,-bitw));
 if div.A >= div.Amax
