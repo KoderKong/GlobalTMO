@@ -113,9 +113,9 @@ end
 function toneFunc(map_,fn,cmax,sbin,ttout)
 n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-data = flip(ttout.Data(n+12:n+nbin+11)); % 'invert'
-map = {uint8(bitand(data,0x00FF));
-    uint8(bitshift(bitand(data,0xFF00),-8))};
+mmap = flip(ttout.Data(n+12:n+nbin+11)); % 'invert'
+map = {uint8(bitand(mmap,0x00FF));
+    uint8(bitshift(bitand(mmap,0xFF00),-8))};
 assert(isequal(map_,map{1}))
 assert(isequal(map_([2:end end]),map{2}))
 end
@@ -131,7 +131,7 @@ end
 
 function interpLin(Wj_,fn,cmax,wout)
 n = fn*cmax;
-Wj = reshape(wout.Data(n+12:n+cmax+11),240,160)';
+Wj = reshape(wout.Data(n+15:n+cmax+14),240,160)';
 assert(isequal(Wj_,Wj))
 end
 

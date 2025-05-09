@@ -105,9 +105,9 @@ end
 function toneFunc(map_,fn,cmax,sbin,ttout)
 n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-data = flip(ttout.Data(n+11:n+nbin+10)); % 'invert'
-map = {uint8(bitand(data,0x00FF));
-    uint8(bitshift(bitand(data,0xFF00),-8))};
+mmap = flip(ttout.Data(n+11:n+nbin+10)); % 'invert'
+map = {uint8(bitand(mmap,0x00FF));
+    uint8(bitshift(bitand(mmap,0xFF00),-8))};
 assert(isequal(map_,map{1}))
 assert(isequal(map_([2:end end]),map{2}))
 end

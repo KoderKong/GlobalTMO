@@ -80,12 +80,10 @@ for k = 1:P
     if k < P
         sceneHist(TMOobj.pmf(:,1),k-1,MN,sbin,hin)
         percvHist(TMOobj.pmf(:,2),k-1,MN,sbin,hout)
+        toneFunc(TMOobj.map,k-1,MN,sbin,tout)
     end
-    if k > 2
-        % toneFunc(TMOobj.map,k-1,MN,sbin,tout)
-    end
-    if k > 2 && k < P-1
-        % globalMap(TMOobj.map,k-1,MN,sbin,yin,wout)
+    if k < P-2
+        globalMap(TMOobj.map,k-1,MN,sbin,yin,wout)
     end
 end
 dotdot(false)
@@ -108,17 +106,17 @@ assert(isequal(pmf_,pmf))
 end
 
 function toneFunc(map_,fn,cmax,sbin,tout)
-n = fn*cmax;
+n = (fn+1)*cmax;
 nbin = pow2(16-sbin);
-map = flip(tout.Data(n+9:n+nbin+8)); % 'invert'
+map = flip(tout.Data(n+12:n+nbin+11)); % 'invert'
 assert(isequal(map_,map))
 end
 
 function globalMap(map_,fn,cmax,sbin,yin,wout)
-n = (fn+1)*cmax;
+n = (fn+2)*cmax;
 Yj = reshape(yin.Data(n+1:n+cmax),240,160)';
 Wj_ = map_(double(bitshift(Yj,-sbin))+1);
-Wj = reshape(wout.Data(n+9:n+cmax+8),240,160)';
+Wj = reshape(wout.Data(n+12:n+cmax+11),240,160)';
 assert(isequal(Wj_,Wj))
 end
 
