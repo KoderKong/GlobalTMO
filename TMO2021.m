@@ -1,8 +1,7 @@
 classdef TMO2021 < handle
     properties (SetAccess = protected)
         bity % Word length of pixel response (MSBs)
-        type % Response type ('normal' or 'invert';
-        % use '-interp' suffix for interpolation)
+        type % Response type ('normal' or 'invert')
         bitw % Word length after the tone mapping
         elpf % Enable low-pass filter countdown
         pmax % Ceiling for PMF (histogram bins)
@@ -16,7 +15,11 @@ classdef TMO2021 < handle
             TMO.type = lower(type);
             TMO.bitw = bitw;
             if nargin >= 4
-                TMO.elpf = elpf;
+                if isscalar(elpf)
+                    TMO.elpf = elpf-1;
+                else
+                    TMO.elpf = [];
+                end
                 if nargin >= 5
                     n = prod(dims);
                     num = n/sqrt(12);
@@ -28,26 +31,19 @@ classdef TMO2021 < handle
                 end
             end
             bins = pow2(bity);
-            pmfs = 1+isscalar(TMO.elpf);
-            TMO.pmf = zeros(bins,pmfs);
+            if isscalar(TMO.elpf)
+                TMO.pmf = zeros(bins,2);
+            else
+                TMO.pmf = zeros(bins,1);
+            end
+            TMO.map = zeros(bins,2,'uint8');
         end
         function Wj = process(TMO,Yj,sbin)
             Yj_ = bitshift(Yj,-sbin); % MSBs
-            if isvector(TMO.map)
-                lookup = TMO.map;
-                update(TMO)
-                [~,TMO.pmf(:,1)] = tmopmf(Yj_,TMO.bity);
-            else
-                [~,TMO.pmf(:,1)] = tmopmf(Yj_,TMO.bity);
-                update(TMO)
-                lookup = TMO.map;
-            end
-            if endsWith(TMO.type,'-interp')
-                lookup = tmointerp(lookup,sbin);
-                Wj = lookup(double(Yj)+1);
-            else
-                Wj = lookup(double(Yj_)+1);
-            end
+            [~,hist] = tmopmf(Yj_,TMO.bity);
+            lookup = TMO.map(:,2);
+            update(TMO,hist)
+            Wj = lookup(double(Yj_)+1);
         end
     end
     methods (Access = protected)
@@ -65,15 +61,13 @@ classdef TMO2021 < handle
             wref2 = pow2(wref,bitc);
             Amin = round(wref2/cmax);
             Amax = round(wref2/TMO.pmax);
-            TMO.div = struct('enbl',TMO.elpf,'lut',lut,'bitc',bitc,...
+            TMO.div = struct('lut',lut,'bitc',bitc,...
                 'wmax',wref/2,'A',Amin,'Amin',Amin,'Amax',Amax);
         end
-        function update(TMO)
-            if isempty(TMO.elpf)
-                hist = TMO.pmf(:,1); % Scene
-            else
+        function update(TMO,hist)
+            TMO.pmf(:,1) = hist; % Scene
+            if isscalar(TMO.elpf)
                 if TMO.elpf > 0
-                    hist = TMO.pmf(:,1); % Scene
                     TMO.elpf = TMO.elpf-1;
                 else
                     hist = TMO.pmf*[20; 236];
@@ -85,7 +79,8 @@ classdef TMO2021 < handle
                 bin = hist > TMO.pmax;
                 hist(bin) = TMO.pmax; % Modified
             end
-            [TMO.map,TMO.div] = tmoheq(hist,...
+            TMO.map(:,2) = TMO.map(:,1);
+            [TMO.map(:,1),TMO.div] = tmoheq(hist,...
                 TMO.type,TMO.bitw,TMO.div);
         end
     end

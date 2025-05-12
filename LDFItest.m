@@ -60,8 +60,8 @@ end
 function simout(CISobj,Xjk,sbin,hin,hout,ttout,yin,wwout,wout)
 dotdot('SIMOUT',10)
 [M,N,P] = size(Xjk);
-TMOobj = TMO2025(16-sbin,'invert-interp',8,...
-    1,[M N],pow2(CISobj.stde,-sbin));
+stde = pow2(CISobj.stde,-sbin);
+TMOobj = TMO2025(16-sbin,'invert',8,2,[M N],stde);
 rng default % Reset CISobj
 MN = M*N;
 for k = 1:P

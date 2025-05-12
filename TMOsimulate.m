@@ -55,7 +55,7 @@ for k = 1:p
     if isscalar(TMOobj)
         Wj = process(TMOobj,Yj,sbin);
         pmf(k,:,:) = TMOobj.pmf;
-        map(k,:) = TMOobj.map;
+        map(k,:) = TMOobj.map(:,1);
     else
         Wj = tonemap(CISobj,Yj);
     end
@@ -128,17 +128,17 @@ switch type
     case 'LXFX' % Li's method, w/o div, with LPF, w/o interp
         TMOobj = TMO2021(16-sbin,'invert',8,2,dims,stde,'lut');
     case 'HEXI' % Histogram equalization, w/o LPF, with interp
-        TMOobj = TMO2025(16-sbin,'invert-interp',8);
+        TMOobj = TMO2025(16-sbin,'invert',8);
     case 'HEFI' % Histogram equalization, with LPF, with interp
-        TMOobj = TMO2025(16-sbin,'invert-interp',8,1);
+        TMOobj = TMO2025(16-sbin,'invert',8,2);
     case 'LDXI' % Li's method, with div, w/o LPF, with interp
-        TMOobj = TMO2025(16-sbin,'invert-interp',8,[],dims,stde);
+        TMOobj = TMO2025(16-sbin,'invert',8,[],dims,stde);
     case 'LDFI' % Li's method, with div, with LPF, with interp
-        TMOobj = TMO2025(16-sbin,'invert-interp',8,1,dims,stde);
+        TMOobj = TMO2025(16-sbin,'invert',8,2,dims,stde);
     case 'LXXI' % Li's method, w/o div, w/o LPF, with interp
-        TMOobj = TMO2025(16-sbin,'invert-interp',8,[],dims,stde,'lut');
+        TMOobj = TMO2025(16-sbin,'invert',8,[],dims,stde,'lut');
     case 'LXFI' % Li's method, w/o div, with LPF, with interp
-        TMOobj = TMO2025(16-sbin,'invert-interp',8,1,dims,stde,'lut');
+        TMOobj = TMO2025(16-sbin,'invert',8,2,dims,stde,'lut');
 end
 end
 

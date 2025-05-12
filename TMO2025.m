@@ -1,8 +1,7 @@
 classdef TMO2025 < handle
     properties (SetAccess = protected)
         bity % Word length of pixel response (MSBs)
-        type % Response type ('normal' or 'invert';
-        % use '-interp' suffix for interpolation)
+        type % Response type ('normal' or 'invert')
         bitw % Word length after the tone mapping
         elpf % Enable low-pass filter countdown
         pmax % Ceiling for PMF (histogram bins)
@@ -16,7 +15,11 @@ classdef TMO2025 < handle
             TMO.type = lower(type);
             TMO.bitw = bitw;
             if nargin >= 4
-                TMO.elpf = elpf;
+                if isscalar(elpf)
+                    TMO.elpf = elpf-1;
+                else
+                    TMO.elpf = [];
+                end
                 if nargin >= 5
                     n = prod(dims);
                     num = n/sqrt(12);
@@ -40,12 +43,8 @@ classdef TMO2025 < handle
             [~,hist] = tmopmf(Yj_,TMO.bity);
             lookup = TMO.map(:,2);
             update(TMO,hist)
-            if endsWith(TMO.type,'-interp')
-                lookup = tmointerp(lookup,sbin);
-                Wj = lookup(double(Yj)+1);
-            else
-                Wj = lookup(double(Yj_)+1);
-            end
+            lookup = tmointerp(lookup,sbin);
+            Wj = lookup(double(Yj)+1);
         end
     end
     methods (Access = protected)

@@ -1,9 +1,9 @@
 function [map,div] = tmoheq(pmf,type,bitw,div)
 switch type
-    case {'normal','normal-interp'}
+    case 'normal'
         cdf = cumsum(pmf,'forward');
         pos = numel(cdf);
-    case {'invert','invert-interp'}
+    case 'invert'
         cdf = cumsum(pmf,'reverse');
         pos = 1;
     otherwise
