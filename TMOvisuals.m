@@ -15,7 +15,7 @@ switch option
         error('Invalid selection.')
 end
 type = {'HEFX2','Hist. Eq. (sbin=2)','(a)';
-    'LXFX2','TMO 2021 (sbin=2)','(b)';
+    'LXFX2','TMO 2021 (sbin=2)','(B)';
     'LXFX8','TMO 2021 (sbin=8)','(c)';
     'LXFI8','TMO 2025 (sbin=8)','(d)'};
 makeVideo(type,file,font,fnum)
@@ -35,10 +35,11 @@ vread = cellfun(@VideoReader,files,'UniformOutput',false);
 hasFrames = @(vread) cellfun(@hasFrame,vread);
 readFrames = @(vread) cellfun(@readFrame,vread,'UniformOutput',false);
 while all(hasFrames(vread))
+    dotdot(true)
     fnum = fnum-1;
     frame = readFrames(vread);
     for k = 1:num
-        text = sprintf('%s %s',type{k,3},type{k,2});
+        text = sprintf('%s %s',lower(type{k,3}),type{k,2});
         frame{k} = insertText(frame{k},[1 1],text,...
             'Font','Arial','FontSize',font);
     end
@@ -48,16 +49,15 @@ while all(hasFrames(vread))
         imwrite(frame,strcat(file,'.png'))
     end
     writeVideo(vwrite,frame)
-    dotdot(true)
 end
-close(vwrite)
 dotdot(false)
+close(vwrite)
 end
 
 function makeImage(type,file,time,dims)
 m = size(type,1);
 n = numel(time);
-frame = getFrame(type,file,time);
+[frame,fom] = getFrame(type,file,time);
 zoom = imread(strcat(file,'.png'));
 [nr,nc,~] = size(zoom);
 frame = imresize(frame,[NaN nc]);
@@ -68,11 +68,12 @@ ystep = rows/m;
 x = round(xstep/2:xstep:cols);
 y = round(ystep/2:ystep:rows);
 imshow([zoom; frame])
+disp(fom) % SSIM
 xticks(x)
 xticklabels(time)
 xlabel('Time (s)')
 yticks(nr+y)
-yticklabels(type(:,3))
+yticklabels(lower(type(:,3)))
 axis on
 fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
     'LineWidth',0.5,'MarkerSize',4)
@@ -98,6 +99,7 @@ file = strcat(file,'Var');
 video = VideoWriter(file);
 open(video)
 for k = 1:p
+    dotdot(true)
     map1 = tmorepmat(map{1}(k,:),sbin(1),2);
     map2 = tmorepmat(map{2}(k,:),sbin(2),2);
     map3 = tmointerp(map{3}(k,:),sbin(3));
@@ -121,13 +123,12 @@ for k = 1:p
     legend(hist{:},type{:,2},'Location','West')
     frame = getframe(gcf);
     writeVideo(video,frame)
-    dotdot(true)
     if k == fnum
         savefig(file)
     end
 end
-close(video)
 dotdot(false)
+close(video)
 if fnum <= p
     close
     openfig(file);
@@ -137,7 +138,7 @@ fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
 close
 end
 
-function frame = getFrame(type,file,time)
+function [frame,fom] = getFrame(type,file,time)
 m = size(type,1);
 n = numel(time);
 head = sprintf('Creating %d-by-%d image:',m,n);
@@ -147,14 +148,28 @@ vread = cellfun(@VideoReader,file,'UniformOutput',false);
 frame = cell(m,n);
 for i = 1:m
     for j = 1:n
+        dotdot(true)
         vread{i}.CurrentTime = time(j);
         frame{i,j} = readFrame(vread{i});
-        frame{i,j} = addBorder(frame{i,j});
-        dotdot(true)
     end
 end
-frame = cell2mat(frame);
 dotdot(false)
+isupper = cellfun(@(s) strcmp(s,upper(s)),type(:,3));
+fom = getMerit(frame,find(isupper,1));
+for k = 1:numel(frame)
+    frame{k} = addBorder(frame{k});
+end
+frame = cell2mat(frame);
+end
+
+function fom = getMerit(frame,iref)
+[m,n] = size(frame);
+fom = zeros(m,n);
+for i = 1:m
+    for j = 1:n
+        fom(i,j) = ssim(frame{i,j},frame{iref,j});
+    end
+end
 end
 
 function [pmax,pmf,map,sbin] = getVars(type,file)

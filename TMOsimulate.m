@@ -50,6 +50,7 @@ video = VideoWriter(file,'Grayscale AVI');
 open(video)
 rng('default') % Reset CISobj
 for k = 1:p
+    dotdot(true)
     Xj = Xjk(:,:,k);
     Yj = image(CISobj,Xj);
     if isscalar(TMOobj)
@@ -60,10 +61,9 @@ for k = 1:p
         Wj = tonemap(CISobj,Yj);
     end
     writeVideo(video,Wj)
-    dotdot(true)
 end
-close(video)
 dotdot(false)
+close(video)
 if isscalar(TMOobj)
     vars = {TMOobj.pmax,pmf,map};
 else
@@ -95,15 +95,15 @@ if isscalar(TMOobj)
     fid = openall(file,{'Yj','Wj'});
     rng('default') % Reset CISobj
     for k = 1:p
+        dotdot(true)
         Xj = Xjk(:,:,k);
         Yj = image(CISobj,Xj);
         fwrite(fid(1),Yj',class(Yj));
         Wj = process(TMOobj,Yj,sbin);
         fwrite(fid(2),Wj',class(Wj));
-        dotdot(true)
     end
-    fclose('all');
     dotdot(false)
+    fclose('all');
 end
 end
 
