@@ -66,18 +66,35 @@ frame = repmat(frame,1,1,3);
 xstep = cols/n;
 ystep = rows/m;
 x = round(xstep/2:xstep:cols);
-y = round(ystep/2:ystep:rows);
+y = nr+round(ystep/2:ystep:rows);
 imshow([zoom; frame])
-disp(fom) % SSIM
+addMerit(x+round(xstep/2),y+round(ystep/2),fom)
 xticks(x)
 xticklabels(time)
 xlabel('Time (s)')
-yticks(nr+y)
+yticks(y)
 yticklabels(lower(type(:,3)))
 axis on
 fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
     'LineWidth',0.5,'MarkerSize',4)
 close
+end
+
+function addMerit(x,y,fom)
+[m,n] = size(fom);
+isref = fom == 1;
+for i = 1:m
+    for j = 1:n
+        if isref(i,j)
+            label = 'ref. ';
+        else
+            label = sprintf('%4.2f ',fom(i,j));
+        end
+        text(x(j),y(i),label,'FontName','Arial','FontSize',8,...
+            'Color','y','Horizontal','right','Vertical','bottom')
+    end
+end
+assert(all(sum(isref,1) == 1))
 end
 
 function makeGraph(type,file,fnum,dims)
