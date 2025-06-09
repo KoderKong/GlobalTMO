@@ -137,7 +137,7 @@ for k = 1:p
     set(h,'LineWidth',1,'Color',rgb)
     ylim([0 rmax])
     ylabel('Tone Function')
-    legend(hist{:},type{:,2},'Location','West')
+    legend(hist{:},type{:,2},'Location','NorthEast')
     frame = getframe(gcf);
     writeVideo(video,frame)
     if k == fnum
