@@ -21,7 +21,6 @@ ttout.Data = ttout.Data(:);
 wwout.Data = wwout.Data(:);
 wout.Data = wout.Data(:);
 simout(logDPS,Xjk,sbin,hin,hout,ttout,yin,wwout,wout)
-pdfout('topScope',[7.5 7.5],cin,yin,wout)
 % hin.Name = 'hin';
 % hout.Name = 'hout';
 % ttout.Name = 'ttout';
@@ -135,27 +134,6 @@ function interpLin(Wj_,fn,cmax,wout)
 n = fn*cmax;
 Wj = reshape(wout.Data(n+15:n+cmax+14),240,160)';
 assert(isequal(Wj_,Wj))
-end
-
-function pdfout(file,dims,cin,yin,wout)
-caddr = floor(pow2(cin.Data,-3));
-cmode = mod(cin.Data,uint32(8));
-subplot(4,1,1)
-plot(cin.Time,caddr,'b-')
-ylabel('cin MSBs')
-subplot(4,1,2)
-plot(cin.Time,cmode,'b-')
-ylabel('cin LSBs')
-subplot(4,1,3)
-plot(yin.Time,yin.Data,'b-')
-ylabel('yin')
-subplot(4,1,4)
-plot(wout.Time,wout.Data,'b-')
-ylabel('wout')
-xlabel('Sample Time (s)')
-fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
-    'LineWidth',0.5,'MarkerSize',4)
-close
 end
 
 function xlsxout(file,varargin)

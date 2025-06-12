@@ -20,7 +20,6 @@ hout.Data = hout.Data(:);
 tout.Data = tout.Data(:);
 wout.Data = wout.Data(:);
 simout(logDPS,Xjk,sbin,hin,hout,tout,yin,wout)
-pdfout('topScope',[7.5 7.5],cin,yin,wout)
 % hin.Name = 'hin';
 % hout.Name = 'hout';
 % tout.Name = 'tout';
@@ -120,27 +119,6 @@ Yj = reshape(yin.Data(n+1:n+cmax),240,160)';
 Wj_ = map_(double(bitshift(Yj,-sbin))+1);
 Wj = reshape(wout.Data(n+12:n+cmax+11),240,160)';
 assert(isequal(Wj_,Wj))
-end
-
-function pdfout(file,dims,cin,yin,wout)
-caddr = floor(pow2(cin.Data,-3));
-cmode = mod(cin.Data,uint32(8));
-subplot(4,1,1)
-plot(cin.Time,caddr,'b-')
-ylabel('cin MSBs')
-subplot(4,1,2)
-plot(cin.Time,cmode,'b-')
-ylabel('cin LSBs')
-subplot(4,1,3)
-plot(yin.Time,yin.Data,'b-')
-ylabel('yin')
-subplot(4,1,4)
-plot(wout.Time,wout.Data,'b-')
-ylabel('wout')
-xlabel('Sample Time (s)')
-fig2pdf(file,dims,'FontName','Arial','FontSize',10,...
-    'LineWidth',0.5,'MarkerSize',4)
-close
 end
 
 function xlsxout(file,varargin)
