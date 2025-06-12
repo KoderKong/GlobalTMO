@@ -9,4 +9,5 @@ Run the script, 'LXFItest.m', to test a Simulink model, 'LXFIsys.slx', that matc
 
 # See also
 [1] Maikon Nascimento, Jing Li, and Dileepan Joseph, "Efficient Pipelined Circuits for the Histogram-Based Tone Mapping of Nonlinear CMOS Image Sensors," Journal of Imaging Science and Technology, vol. 65, no. 4, pp. 040503 1–13, Jul. 2021 (https://doi.org/10.2352/J.ImagingSci.Technol.2021.65.4.040503).
+
 [2] Wei Dong, Maikon Nascimento, and Dileepan Joseph, "Model-Based Design of Contrast-Limited Histogram Equalization for Low-Complexity, High-Speed, and Low-Power Tone-Mapping Operation," publication pending...
